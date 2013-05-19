@@ -267,7 +267,7 @@ class Query():
 
         if lxmlEtree:
 
-            return executeXml(lxmlEtree)
+            return self.executeXml(lxmlEtree)
         else:
 
             # Pass the results as strings
@@ -278,18 +278,50 @@ class Query():
         xmlStr = self.exc(chr(5), self.__id)
 
         # Replace all cases of <elementName></elementName> with <elementName />
-        xmlStr = re.sub('></[a-zA-Z0-9]+>', ' />', xmlStr)
+        
+        pattern = re.compile('></[a-zA-Z0-9]+>', re.MULTILINE)
+        xmlStr = re.sub(pattern, ' />', xmlStr)
 
         # Split the XML strings by tags and whitespace between these tags
         # This does not handle cases of CDATA
-        results = re.split('(?<=>)\s?(?=<)', xmlStr)
+
+        pattern = re.compile('(?<=>)\s*(?=<)', re.MULTILINE)
+        results = re.split(pattern, xmlStr)
 
         elements = []
 
-        for line in results:
+        i = 0
+        while i < len(results):
 
-            element = lxmlEtree.fromstring(line)
+            # For those cases where elements span more than one line
+
+            # <elementName>
+            # <elementName /><elementName1>...
+            # <elementName>data</elementName><elementName1>...
+
+            if len(re.findall(r'<[a-zA-Z].+?>', results[i])) != len(re.findall(r'</[a-zA-Z0-9]+>', results[i])):
+
+                depth = 0
+                parser = lxmlEtree.XMLParser()
+
+                # </elementName>
+                # ntName><elementName>...
+                # <elementName>\n<elementName />\n
+
+                while i < len(results) and ( depth > 0 or (len(re.findall(r'<[a-zA-Z].+?>', results[i])) != len(re.findall(r'</[a-zA-Z0-9]+>', results[i])))):
+
+                    parser.feed(results[i])
+
+                    # Decrease the depth by the number of tags closed
+                    depth -= len(re.findall(r'</[a-zA-Z0-9]+>', results[i])) - len(re.findall(r'<[a-zA-Z].+?>', results[i]))
+                    i+=1
+                element = parser.close()
+            else :
+
+                element = lxmlEtree.fromstring(results[i])
+
             elements.append(element)
+            i+=1
 
         return elements
 
