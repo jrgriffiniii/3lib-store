@@ -41,7 +41,7 @@ class TestQuery(unittest.TestCase):
         for e in elements:
 
             self.assertEqual(etree.tostring(e), '<text xmlns="http://amf.openlib.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="info:lib/RePEc:adv:wpaper:200804"><title>Microfinance&#8217;s Impact on Education, Poverty, and Empowerment: A Case Study from the Bolivian Altiplano</title><displaypage>http://econpapers.repec.org/RePEc:adv:wpaper:200804</displaypage><hasauthor><person><name>Sarah Gibb</name></person></hasauthor></text>')
-    
+
     def tearDown(self):
 
         pass
