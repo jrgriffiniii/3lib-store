@@ -308,13 +308,19 @@ class Query():
                 # ntName><elementName>...
                 # <elementName>\n<elementName />\n
 
-                while i < len(results) and ( depth > 0 or (len(re.findall(r'<[a-zA-Z].+?>', results[i])) != len(re.findall(r'</[a-zA-Z0-9]+>', results[i])))):
+                while i < len(results) and (depth > 0 or len(re.findall(r'<[a-zA-Z].+?>', results[i])) != len(re.findall(r'</[a-zA-Z0-9]+>', results[i]))):
 
                     parser.feed(results[i])
 
+
                     # Decrease the depth by the number of tags closed
                     depth -= len(re.findall(r'</[a-zA-Z0-9]+>', results[i])) - len(re.findall(r'<[a-zA-Z].+?>', results[i]))
+
+                    # Refactor
+                    if depth == 0: break
+
                     i+=1
+
                 element = parser.close()
             else :
 
