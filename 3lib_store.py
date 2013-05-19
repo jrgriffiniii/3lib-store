@@ -35,6 +35,9 @@ class author:
             # Close the session
             session.close()
 
+            # Set the content type for the XML response
+            web.header('Content-Type', 'application/xml')
+
             return response
         except IOError as e:
         
