@@ -277,6 +277,9 @@ class Query():
 
         xmlStr = self.exc(chr(5), self.__id)
 
+        # Return an empty array for cases in which there were no results
+        if not xmlStr: return []
+
         # Replace all cases of <elementName></elementName> with <elementName />
         
         pattern = re.compile('></[a-zA-Z0-9]+>', re.MULTILINE)
