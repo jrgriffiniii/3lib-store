@@ -263,23 +263,32 @@ class Query():
         self.__session.send(chr(4) + self.__id)
         return self.__session.iter_receive()
 
-    def execute(self):
-        return self.exc(chr(5), self.__id)
+    def execute(self, lxmlEtree = None):
 
-    # Pass the results as strings
-    def executeStr(self):
+        if lxmlEtree:
 
-        return self.exc(chr(5), self.__id)
+            return executeXml(lxmlEtree)
+        else:
 
-    def executeXml(self):
+            # Pass the results as strings
+            return self.exc(chr(5), self.__id)
 
-        results = re.split('(?<=>)\W?(?=<)', self.exc(chr(5), self.__id))
+    def executeXml(self, lxmlEtree):
+
+        xmlStr = self.exc(chr(5), self.__id)
+
+        # Replace all cases of <elementName></elementName> with <elementName />
+        xmlStr = re.sub('></[a-zA-Z0-9]+>', ' />', xmlStr)
+
+        # Split the XML strings by tags and whitespace between these tags
+        # This does not handle cases of CDATA
+        results = re.split('(?<=>)\s?(?=<)', xmlStr)
 
         elements = []
 
         for line in results:
 
-            element = etree.fromstring(line)
+            element = lxmlEtree.fromstring(line)
             elements.append(element)
 
         return elements

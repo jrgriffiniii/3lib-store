@@ -3,6 +3,7 @@ import unittest
 # Dependencies
 import socket, array
 from BaseXClient import Query, Session
+from lxml import etree
 
 class TestQuery(unittest.TestCase):
 
@@ -18,15 +19,19 @@ class TestQuery(unittest.TestCase):
         # Test for the ID assigned to the query
         self.assertEqual(self.__query._Query__id, '0')
 
-    def testExecuteStr(self):
+    def testExecute(self):
 
         self.__query = Query(self.__session, '//amf:text/amf:hasauthor/amf:person/amf:name[text()="Sarah Gibb"]', {'amf': 'http://amf.openlib.org'})
-        self.assertEqual(self.__query.executeStr(), '<name xmlns="http://amf.openlib.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Sarah Gibb</name>')
+        self.assertEqual(self.__query.execute(), '<name xmlns="http://amf.openlib.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Sarah Gibb</name>')
 
     def testExecuteXml(self):
 
         self.__query = Query(self.__session, '//amf:text/amf:hasauthor/amf:person/amf:name[text()="Ping Qin"]', {'amf': 'http://amf.openlib.org'})
-        print self.__query.executeXml()
+        elements = self.__query.executeXml(etree)
+
+        for e in elements:
+
+            self.assertEqual(etree.tostring(e), '<name xmlns="http://amf.openlib.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Ping Qin</name>')
         pass
     
     def tearDown(self):
