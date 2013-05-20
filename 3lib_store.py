@@ -7,7 +7,7 @@ from BaseXClient import Query, Session
 urls = (
 
     # Retrieving XML documents by author names
-    '/author/(.+)', 'author'
+    '/author/(.*)', 'author'
 )
 
 class author:
@@ -19,8 +19,10 @@ class author:
 
             session = Session('localhost', 1984, 'admin', 'admin', 'RePEc')
 
+            xQueryStr = '//amf:text/amf:hasauthor/amf:person/amf:name[text()="' + name + '"]/../../..'
+
             # Pass the query returning all <amf:text> elements for a given author's name
-            query = Query(session, '//amf:text/amf:hasauthor/amf:person/amf:name[text()="' + name + '"]/../../..', {'amf': 'http://amf.openlib.org'})
+            query = Query(session, xQueryStr, {'amf': 'http://amf.openlib.org'})
             results = query.execute(etree)
 
             response = ''
