@@ -7,19 +7,27 @@ from BaseXClient import Query, Session
 urls = (
 
     # Retrieving XML documents by author names
-    '/author/(.*)', 'author'
+    '/author/(.*)/?(.*)', 'author'
 )
 
 class author:
 
-    def GET(self, name):
+    def GET(self, collection, name):
+
+        if not collection:
+
+            collection = "RePEc"
 
         # Create a BaseXSession with the database RePEc
         try:
 
-            session = Session('localhost', 1984, 'admin', 'admin', 'RePEc')
+            session = Session('localhost', 1984, 'admin', 'admin', collection)
 
-            xQueryStr = '//amf:text/amf:hasauthor/amf:person/amf:name[text()="' + name + '"]/../../..'
+            if not name:
+
+                xQueryStr = '//amf:text/amf:hasauthor/amf:person/amf:name/../../..'
+            else:
+                xQueryStr = '//amf:text/amf:hasauthor/amf:person/amf:name[text()="' + name + '"]/../../..'
 
             # Pass the query returning all <amf:text> elements for a given author's name
             query = Query(session, xQueryStr, {'amf': 'http://amf.openlib.org'})
